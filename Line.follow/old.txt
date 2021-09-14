@@ -1,0 +1,15 @@
+//drop   'D'
+    hard_left();
+    delay(450);
+    release();
+    hard_right();
+    delay(420);
+    _stop_();
+    delay(200);
+
+
+
+
+//180 deg rotation
+    hard_right();
+    delay(400);

@@ -1,4 +1,5 @@
 //drop   'D'
+    run_until(&stay_on_line, 920);
     hard_left();
     delay(450);
     release();

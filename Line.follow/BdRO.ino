@@ -22,7 +22,7 @@ Servo srv; /*PWM pin --> orange*/
 #define pingPin 4
 #define echoPin 5
 
-#define SPEED 100  /*0-255 range*/
+#define SPEED 106    /*0-255 range*/
 #define SPEED_PIN 11
 //#define SPEED_PIN_L 11
 
@@ -138,7 +138,7 @@ void pick_up() {
   _stop_();
   delay(100);
   srv.write(0);
-  analogWrite(SPEED_PIN, 104);
+  analogWrite(SPEED_PIN, 110);
   delay(700);
   forward();
 }
@@ -170,6 +170,9 @@ void stay_on_line() {
   ir_left1 = analogRead(IR_Left1);
   ir_left2 = analogRead(IR_Left2);
 
+//  ir_right3 = digitalRead(IR_Right3);
+//  ir_left3 = digitalRead(IR_Left3);
+
   if (ir_right1 > 170 && ir_left1 > 170) {
     forward();
   }
@@ -185,9 +188,12 @@ void stay_on_line() {
   else if (ir_left2 > 170) {
     left();
   }
-  else{
-    forward();
-  }
+//  else if(ir_right3 == 1){
+//    right();
+//  }
+//  else if(ir_left3 == 1){
+//    left();
+//  }
 }
 
 
@@ -196,14 +202,14 @@ void exe_cmd(char dir) {
     forward();
     delay(250);
     hard_left();
-    delay(410);
+    delay(380);
     forward();
   }
   else if (dir == 'R') {
     forward();
     delay(250);
     hard_right();
-    delay(410);
+    delay(380);
     forward();
   }
   else if (dir == 'S') {
@@ -220,13 +226,15 @@ void exe_cmd(char dir) {
     backward();
     delay(320);
     hard_right();
-    delay(800);
-    forward();
+    delay(620);
+    run_until(&stay_on_line, 380);
+//    forward();
   }
   else if (dir == 'G') {
     hard_right();
-    delay(800);
-    forward();
+    delay(620);
+    run_until(&stay_on_line, 380); 
+//    forward();
   }
   delay(350);
 }
@@ -258,7 +266,9 @@ void loop() {
     }
     else {
       _stop_();
-      exit(0);
+      while(true){
+        
+      }
     }
   }
   else {

@@ -26,32 +26,32 @@ Servo srv; /*PWM pin --> orange*/
 #define SPEED_PIN 11
 //#define SPEED_PIN_L 11
 
-bool ir_right3,ir_left3;
+bool ir_right3, ir_left3;
 float ir_right1, ir_right2, ir_left1, ir_left2;
 unsigned long startMillis;
 unsigned long currentMillis;
 bool picked_obj = false;
 
 int cmd_index = 0;
-char cmd[] = {'L', 'F', 'F', 'L', 'D', 'G', 'F', 'R', 'F', 'L', 'G'};
+char cmd[] = {'L', 'F', 'L', 'G', 'F', 'F', 'D', 'L' , 'L' , 'D'};
 /** L - left, R - right
- S - stop, F - forward
-G - 180 degree rotation
-D - drop obj release()
+  S - stop, F - forward
+  G - 180 degree rotation
+  D - drop obj drop()
 **detect white surface!!**
 
 */
 
 float distance = 0.0;
 
-void setup(){
-//  Serial.begin(9600);
+void setup() {
+  //  Serial.begin(9600);
   pinMode(RightForward, OUTPUT);
   pinMode(RightBackward, OUTPUT);
   pinMode(LeftForward, OUTPUT);
   pinMode(LeftBackward, OUTPUT);
   pinMode(SPEED_PIN, OUTPUT);
-//  pinMode(SPEED_PIN_L, OUTPUT);
+  //  pinMode(SPEED_PIN_L, OUTPUT);
 
   pinMode(IR_Right3, INPUT);
   pinMode(IR_Right2, INPUT);
@@ -68,11 +68,11 @@ void setup(){
 
   delay(1000);
   analogWrite(SPEED_PIN, SPEED);
-//  analogWrite(SPEED_PIN_L, SPEED);
-  
+  //  analogWrite(SPEED_PIN_L, SPEED);
+
 }
 
-void left(){
+void left() {
   digitalWrite(RightForward, HIGH);
   digitalWrite(LeftBackward, LOW);
 
@@ -81,7 +81,7 @@ void left(){
   //  delay(10);**
 }
 
-void hard_left(){
+void hard_left() {
   digitalWrite(RightForward, HIGH);
   digitalWrite(LeftBackward, HIGH);
 
@@ -90,16 +90,16 @@ void hard_left(){
   delay(100);
 }
 
-void right(){
+void right() {
   digitalWrite(RightBackward, LOW);
   digitalWrite(LeftForward, HIGH);
 
   digitalWrite(RightForward, LOW);
   digitalWrite(LeftBackward, LOW);
-//  delay(10);**
+  //  delay(10);**
 }
 
-void hard_right(){
+void hard_right() {
   digitalWrite(RightBackward, HIGH);
   digitalWrite(LeftForward, HIGH);
 
@@ -108,16 +108,16 @@ void hard_right(){
   delay(100);
 }
 
-void forward(){
+void forward() {
   digitalWrite(RightForward, HIGH);
   digitalWrite(LeftForward, HIGH);
 
   digitalWrite(RightBackward, LOW);
   digitalWrite(LeftBackward, LOW);
-//  delay(20);
+  //  delay(20);
 }
 
-void backward(){
+void backward() {
   digitalWrite(RightBackward, HIGH);
   digitalWrite(LeftBackward, HIGH);
 
@@ -126,7 +126,7 @@ void backward(){
   delay(150);
 }
 
-void _stop_(){
+void _stop_() {
   digitalWrite(RightBackward, LOW);
   digitalWrite(LeftBackward, LOW);
 
@@ -134,98 +134,104 @@ void _stop_(){
   digitalWrite(LeftForward, LOW);
 }
 
-void pick_up(){
-    _stop_();
-    delay(100);
-    srv.write(0);
-    analogWrite(SPEED_PIN, 102);
-    delay(700);
-    forward();
+void pick_up() {
+  _stop_();
+  delay(100);
+  srv.write(0);
+  analogWrite(SPEED_PIN, 104);
+  delay(700);
+  forward();
 }
 
-void release(){
-    analogWrite(SPEED_PIN, SPEED);
-    _stop_();
-    delay(200);
-    srv.write(90);
-    delay(400);
-    picked_obj = false;
+void drop() {
+  analogWrite(SPEED_PIN, SPEED);
+  _stop_();
+  delay(200);
+  srv.write(90);
+  delay(400);
+  picked_obj = false;
 }
 
-void run_until(void (*func)(), int milli_sec){
+void run_until(void (*func)(), int milli_sec) {
   startMillis = millis();
-  while(true){
+  while (true) {
     func();
     currentMillis = millis() - startMillis;
-    if(currentMillis >= milli_sec){
+    if (currentMillis >= milli_sec) {
       break;
     }
   }
 }
 
 
-void stay_on_line(){
+void stay_on_line() {
   ir_right1 = analogRead(IR_Right1);
   ir_right2 = analogRead(IR_Right2);
   ir_left1 = analogRead(IR_Left1);
   ir_left2 = analogRead(IR_Left2);
 
-  if (ir_right1 > 180 && ir_left1 > 180){
+  if (ir_right1 > 170 && ir_left1 > 170) {
     forward();
   }
-  else if(ir_right1 > 170){
+  else if (ir_right1 > 170) {
     right();
   }
-  else if(ir_left1 > 170){
+  else if (ir_left1 > 170) {
     left();
   }
-  else if(ir_right2 > 170){
+  else if (ir_right2 > 170) {
     right();
   }
-  else if(ir_left2 > 170){
+  else if (ir_left2 > 170) {
     left();
   }
-//  else{
-//    forward();
-//  }
+  else{
+    forward();
+  }
 }
 
 
-void exe_cmd(char dir){
-  if(dir == 'L'){
-    left();
-    delay(390);
+void exe_cmd(char dir) {
+  if (dir == 'L') {
+    forward();
+    delay(250);
+    hard_left();
+    delay(410);
+    forward();
   }
-  else if(dir == 'R'){
-    right();
-    delay(390);
+  else if (dir == 'R') {
+    forward();
+    delay(250);
+    hard_right();
+    delay(410);
+    forward();
   }
-  else if(dir == 'S'){
+  else if (dir == 'S') {
     _stop_();
     delay(5000);
   }
-  else if(dir == 'F'){
+  else if (dir == 'F') {
     forward();
   }
-  else if(dir == 'D'){
-    run_until(&stay_on_line, 920);
-    hard_left();
-    delay(450);
-    release();
+  else if (dir == 'D') {
+    forward();
+    delay(350);
+    drop();
+    backward();
+    delay(320);
     hard_right();
-    delay(420);
-    _stop_();
-    delay(200);
+    delay(800);
+    forward();
   }
-  else if(dir == 'G'){
+  else if (dir == 'G') {
     hard_right();
-    delay(400);
-    forward(); 
+    delay(800);
+    forward();
   }
   delay(350);
 }
 
-void loop(){
+void loop() {
 
   digitalWrite(pingPin, LOW);
   delayMicroseconds(2);
@@ -235,7 +241,7 @@ void loop(){
 
   distance = pulseIn(echoPin, HIGH) * 0.034 / 2;
 
-  if (!picked_obj && distance < 4 && distance != 0){
+  if (!picked_obj && distance < 3.5 && distance != 0) {
     pick_up();
     picked_obj = true;
   }
@@ -245,17 +251,17 @@ void loop(){
   ir_left3 = digitalRead(IR_Left3);
 
   /*intersection detected*/
-  if(ir_right3 == 1 || ir_left3 == 1){
-    if(sizeof(cmd) > cmd_index){
+  if (ir_right3 == 1 || ir_left3 == 1) {
+    if (sizeof(cmd) > cmd_index) {
       exe_cmd(cmd[cmd_index]);
       cmd_index++;
     }
-    else{
+    else {
       _stop_();
       exit(0);
     }
   }
-  else{
+  else {
     stay_on_line();
   }
 }
